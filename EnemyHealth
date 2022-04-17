@@ -1,0 +1,55 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Enemy : MonoBehaviour
+{
+    public ParticleSystem deathExplosion;
+    public int maxHealth = 10;
+    [HideInInspector]
+    public int currentHealth;
+
+    public SpriteRenderer spriteRenderer;
+
+    public AudioSource source; 
+    public AudioClip clip;
+
+    Animator entityAnimator;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        currentHealth = maxHealth;
+        entityAnimator = gameObject.GetComponent<Animator>();
+    }
+    //Checks if dead and does something if true
+    public void TakeDamage(int damage)
+    {
+        currentHealth -= damage;
+        StartCoroutine(FlashRed());
+
+        if(currentHealth == 0)
+        {
+            CreateDeathExplosion();
+            DestroyGameObject();
+            entityAnimator.SetBool("isDead", true);
+            source.PlayOneShot(clip);
+        }
+    }
+    //Particle explosion on death
+    void CreateDeathExplosion()
+    {
+        deathExplosion.Play();
+    }
+    //Remove enemy from map
+    void DestroyGameObject()
+    {
+        Destroy(gameObject, 0.2f);
+    }
+    public IEnumerator FlashRed()
+    {
+        spriteRenderer.color = Color.red;
+        yield return new WaitForSeconds(0.08f);
+        spriteRenderer.color = Color.white;
+    }
+}
