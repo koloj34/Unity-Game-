@@ -1,0 +1,76 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class DashMove : MonoBehaviour
+{
+
+    private Rigidbody2D rb;
+    public float dashSpeed;
+    private float dashTime;
+    public float startDashTime;
+    private int direction;
+    public float timeBetweenDash;
+    private float timer;
+    public ParticleSystem dashSystem;
+
+    public AudioSource source;
+    public AudioClip clip; 
+
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        dashTime = startDashTime;
+        timer = 0f;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (direction == 0 && timer <= 0)
+        {
+
+            if (Input.GetKey(KeyCode.A) && Input.GetKeyDown(KeyCode.Space))
+            {
+                direction = 1;
+                timer = timeBetweenDash;
+                dashSystem.Play();
+                source.PlayOneShot(clip);
+            }
+
+            else if (Input.GetKey(KeyCode.D) && Input.GetKeyDown(KeyCode.Space))
+            {
+                direction = 2;
+                timer = timeBetweenDash;
+                dashSystem.Play();
+                source.PlayOneShot(clip);
+            }
+        }
+        else
+        {
+            if (dashTime <= 0)
+            {
+                direction = 0;
+                dashTime = startDashTime;
+            }
+            else
+            {
+                dashTime -= Time.deltaTime;
+                if (direction == 1)
+                {
+                    rb.velocity = Vector2.left * dashSpeed;
+                }
+                if (direction == 2)
+                {
+                    rb.velocity = Vector2.right * dashSpeed;
+                }
+            }
+        }
+        if (timer > 0)
+        {
+            timer -= Time.deltaTime;
+        }
+    }
+}
