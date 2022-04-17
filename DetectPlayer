@@ -1,0 +1,60 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class AttackPlayer : MonoBehaviour
+{
+    private float timer;
+    public float timeBetweenAttacks;
+    public Animator animator;
+
+    [field: SerializeField]
+    public bool PlayerInArea { get; private set; }
+    public Transform Player { get; private set; }
+
+    [SerializeField]
+    private string detectionTag = "Player";
+
+    //When a collider enter the trigger, it checks if it is a player
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.CompareTag(detectionTag))
+        {
+            PlayerInArea = true;
+            Player = collision.gameObject.transform;
+        }
+    }
+    //When a collider whom is a component of a player leaves the trigger, it registers it
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if(collision.CompareTag(detectionTag))
+        {
+            PlayerInArea = false;
+            Player = null;
+        }
+    }
+
+    void Start()
+    {
+        timer = 0; 
+    }
+
+    void Update()
+    {
+        //If a player is in the attack range, the entity attacks
+        if (PlayerInArea == true && timer <= 0)
+        {
+            Attack();
+            timer = timeBetweenAttacks;
+        }
+        if(timer > 0)
+        {
+            timer -= Time.deltaTime;
+        }
+    }
+    //Play the attack animation and in the Unity UI add a collider to the animation manually
+    void Attack()
+    {
+        animator.SetTrigger("enemyInRange");
+    }
+}
