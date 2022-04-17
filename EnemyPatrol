@@ -1,0 +1,93 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class AiPatrol : MonoBehaviour
+{
+    private Rigidbody2D rb2D;
+    public Transform groundCheckPos;
+    public float walkSpeed;
+    public LayerMask groundLayer;
+    public float circleDetectorThang;
+
+    public AudioSource source;
+    public AudioClip clip; 
+
+    [HideInInspector]
+    public bool mustPatrol;
+    private bool mustTurn;
+
+    private int num1;
+    private bool squeelForMe;
+    private float value;
+
+    private int healthRn;
+    private int compareHealth;
+    
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        walkSpeed = 300;
+        mustPatrol = true;
+        rb2D = gameObject.GetComponent<Rigidbody2D>();
+        mustTurn = false;
+        num1 = Random.Range(5, 16);
+        value = num1;
+        compareHealth = GetComponent<Enemy>().currentHealth;
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        //If the boolean value "mustPatrol" is true, the entity will patrol
+        if (mustPatrol)
+        {
+            Patrol();
+        }
+        if(value > 0)
+        {
+            value -= Time.deltaTime;
+        }
+        if(value <= 0)
+        {
+            source.PlayOneShot(clip);
+            value = num1;
+        }
+        
+    }
+    //Adds a force to the entity and declares that if a edge is detected, it will flip
+    void Patrol()
+    {
+        if(mustTurn)
+        {
+            Flip();
+        }
+        rb2D.velocity = new Vector2(walkSpeed * Time.fixedDeltaTime, rb2D.velocity.y);
+    }
+    //Function which flips the character and the forces which are acting on the character
+    void Flip()
+    {
+        mustPatrol = false;
+        transform.localScale = new Vector2(transform.localScale.x * -1, transform.localScale.y);
+        walkSpeed *= -1;
+        mustPatrol = true;
+    }
+
+    private void FixedUpdate()
+    {
+        //Returns true if the "overlapcircle" doesn't detect a platform or other designated layer 
+        if(mustPatrol)
+        {
+            mustTurn = !Physics2D.OverlapCircle(groundCheckPos.position, circleDetectorThang, groundLayer);
+        }
+    }
+    void OnDrawGizmosSelected()
+    {
+        if(groundCheckPos == null)
+            return;
+
+        Gizmos.DrawWireSphere(groundCheckPos.position, circleDetectorThang);
+    }
+}
